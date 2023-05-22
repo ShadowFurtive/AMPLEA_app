@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AMPLEA APP</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.16/dist/sweetalert2.all.min.js"></script>
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+    <div id="imagen_de_carga">
+        <img src="src/logo.png" id="imagen_inicio"></img>
+
+    </div>
+    <div class="cuerpo" id="cuerpo_principal">
+        <div class="parteSuperior">
+            <div class="parteSuperiorIzquierda">
+                <label id="title">AMPLEA APP</label>
+                <button id="go_back_button" class="goback" ><img src="src/go_back.png"></img></button>
+                <label id="topic"></label>
+            </div>
+        </div>
+        <br>
+        <div id="ParteInferior">
+            <div id="components"></div>
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="components_view_controller.js"></script>
+        </div>
+    </div>
+</body>
+</html>
