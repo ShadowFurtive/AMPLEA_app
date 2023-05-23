@@ -16,11 +16,11 @@ $(function() {
 
       ComponentsVC.prototype.loginForm = function() {
         return `
-       <label for="username">Nombre de usuario:</label><br>
+       <label for="username">Username:</label><br>
        <input class="input_form" type="text" id="username" name="username"><br>
-       <label for="password">Contraseña:</label><br>
+       <label for="password">Password:</label><br>
        <input class="input_form" type="password" id="password" name="password"><br><br>
-       <input class="submit enviar_info input_form" type="submit" value="Iniciar sesión">
+       <input class="submit enviar_info input_form" type="submit" value="Login">
         `
       };
 
@@ -130,7 +130,7 @@ $(function() {
           <div class="container">
             <div class="box button_light" role="button"><img src="src/light.png"></img></div>
             <div class="box button_water" role="button"><img src="src/water.png"></img></div>
-            <div class="box" role="button"><img src="src/electricity.png"></img></div>
+            <div class="box button_electricity" role="button"><img src="src/electricity.png"></img></div>
             <div class="box button_settings" role="button"><img src="src/settings.png"></img></div>
           </div>
         </div>`
@@ -148,7 +148,7 @@ $(function() {
             </label>
           </div>
           <div>
-            <h1>Power<h1>
+            <h1>Automatic<h1>
             <label class="switch">
               <input type="checkbox">
               <span class="slider_toggle round"></span>
@@ -158,18 +158,21 @@ $(function() {
         <div class="input_rangeslider">
           <h1 class="name_light">Intensity</h1>
           <div class="slidecontainer">
-            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+            <input type="range" min="1" max="100" value="50" class="slider" id="myRangeMenuLight">
         </div>
-        <div>
-        <h1>Schedule</h1>
-        <div>
-        <h1>From</h1>
-        <input type="time" id="appt" name="appt" min="09:00" max="18:00" required>
-        </div>
-        <div>
-        <h1>To</h1>
-        <input type="time" id="appt" name="appt" min="09:00" max="18:00" required>
-        </div>
+        <div class="center-50">
+          <div>
+            <h1>Schedule</h1>
+            <h2>From</h2>
+            <input class="input_time" type="time" id="appt" name="appt" min="09:00" value="10:00" max="18:00" required>
+          </div>
+          <div>
+            <h2>To</h2>
+            <input class="input_time" type="time" id="appt" name="appt" min="09:00" value="13:00" max="18:00" required>
+          </div>
+          <br>
+          <button class="button-50 save" type="button" id="save">Save</button>
+        
         </div>
         `
       }
@@ -184,14 +187,53 @@ $(function() {
         `
       }
 
-
       ComponentsVC.prototype.MenuWaterHtml = function(){
+        return `
+        <div class="column_container_water">
+          <div>
+            <h1>Today</h1>
+            <div class="data_container">
+              <h1>13</h1>
+              <h2>L</h2>
+            </div>
+          </div>
+          <div>
+            <h1>Average</h1>
+            <div class="data_container">
+              <h1>28</h1>
+              <h2>L</h2>
+            </div>
+          </div>
+        </div> 
+        <div id="chartContainer" style="margin-top: 50px; height: 370px; width: 100%;"></div>   
+        `
+      }
+      ComponentsVC.prototype.MenuElectricityHtml = function(){
         return`
         <div class="column_container">
+          <div>
           <h1>Today</h1>
+          <div class="data_container">
+          <h1>14</h1>
+          <h2>kWh</h2>
+          </div>
+          </div>
+          <div>
           <h1>This week</h1>
+          <div class="data_container">
+          <h1>24</h1>
+          <h2>kWh</h2>
+          </div>
+          </div>
+          <div>
           <h1>This month</h1>  
+          <div class="data_container">
+          <h1>289</h1>
+          <h2>kWh</h2>
+          </div>
+          </div>    
         </div>
+        <div id="chartContainer" style="margin-top: 50px; height: 370px; width:100%;"></div>
         `
       }
 
@@ -355,19 +397,127 @@ $(function() {
       };
 
       ComponentsVC.prototype.menuSettings = function() {
+
+        $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Settings';
         $(this.id).html(this.MenuSettingsHtml());
       };
 
-      ComponentsVC.prototype.menuWater = function() {
+      ComponentsVC.prototype.menuWater= function() {
+        $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Water Control';
         $(this.id).html(this.MenuWaterHtml());
+        var chart = new CanvasJS.Chart("chartContainer", {
+          title:{
+            text: "Last week",
+            fontColor: "#508BCA",
+            fontWeight: "normal",
+            fontFamily:"sans-serif",
+          },
+          axisX: {
+            lineColor: "#508BCA",
+            labelFontColor: "#508BCA",
+            labelFontWeight: "normal",
+            labelFontFamily:"sans-serif",
+            lineThickness: 0,
+            tickThickness: 0,
+            gridThickness: 0,
+          },
+          axisY:{
+            gridThickness: 0,
+            tickLength: 0,
+            lineThickness: 0,
+            labelFormatter: function(){
+              return " ";
+            }
+          },
+          data: [
+          {
+            // Change type to "bar", "area", "spline", "pie",etc.
+            type: "column",
+            indexLabelFontColor: "#508BCA",
+            dataPoints: [
+              { label: "20/05",  y: 10, indexLabel: "{y}", color: "#508BCA" },
+              { label: "21/05", y: 15, indexLabel: "{y}", color: "#508BCA"   },
+              { label: "22/05", y: 25, indexLabel: "{y}", color: "#508BCA"   },
+              { label: "23/05",  y: 30, indexLabel: "{y}", color: "#508BCA"   },
+              { label: "24/05",  y: 28, indexLabel: "{y}", color: "#508BCA"   },
+              { label: "25/05",  y: 12, indexLabel: "{y}", color: "#508BCA"   },
+              { label: "26/05",  y: 19, indexLabel: "{y}", color: "#508BCA"   }
+            ]
+          }
+          ]
+        });
+        chart.render();
+      }
+
+      ComponentsVC.prototype.menuElectricity= function() {
+
+        $('#go_back_button').show();
+        document.getElementById('topic').textContent = 'Electricity Control';
+        $(this.id).html(this.MenuElectricityHtml());
+        var dps = []; // dataPoints
+        var chart = new CanvasJS.Chart("chartContainer", {
+          data: [{
+            type: "line",
+            dataPoints: dps
+          }],
+          axisX: {
+            lineColor: "#508BCA",
+            labelFontColor: "#508BCA",
+            labelFontWeight: "normal",
+            labelFontFamily:"sans-serif",
+            lineThickness: 5,
+            tickThickness: 0,
+            gridThickness: 0,
+          },
+          axisY: {
+            lineColor: "#508BCA",
+            labelFontColor: "#508BCA",
+            labelFontWeight: "normal",
+            labelFontFamily:"sans-serif",
+            lineThickness: 5,
+            tickThickness: 0,
+            gridThickness: 0,
+          }
+        });
+        
+        var xVal = 0;
+        var yVal = 100; 
+        var updateInterval = 1000;
+        var dataLength = 20; // number of dataPoints visible at any point
+        
+        var updateChart = function (count) {
+        
+          count = count || 1;
+        
+          for (var j = 0; j < count; j++) {
+            yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
+            dps.push({
+              x: xVal,
+              y: yVal
+            });
+            xVal++;
+          }
+        
+          if (dps.length > dataLength) {
+            dps.shift();
+          }
+        
+          chart.render();
+        };
+        
+        updateChart(dataLength);
+        setInterval(function(){updateChart()}, updateInterval);
+        
       };
 
       ComponentsVC.prototype.menuLight = function(){
+
+        $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Light Control';
         $(this.id).html(this.menuLightHtml());
-        const rangeInput = document.getElementById("myRange");
+        const rangeInput = document.getElementById("myRangeMenuLight");
 
         rangeInput.addEventListener("input", function() {
           // Calculate the percentage value of the thumb position
@@ -398,7 +548,9 @@ $(function() {
         })
         .catch(error => {console.error(error.status, error.responseText);});*/
         $(this.id).html(this.menu());
-        document.getElementById('topic').textContent = 'Hi, '+this.userId+'!';
+
+        $('#go_back_button').hide();
+        document.getElementById('topic').textContent = 'Hello, '+this.userId+'!';
         $('#topic').show();
         
         const rangeInput = document.getElementById("myRange");
@@ -429,7 +581,6 @@ $(function() {
           this.userId=r.message.id;
           this.userName=r.message.user;
           $('#title').hide();
-          $('#go_back_button').show();
           this.menuController();
           Swal.fire({
             position: 'bottom-end',
@@ -456,8 +607,9 @@ $(function() {
 
       ComponentsVC.prototype.logoutController = function() {
         this.userId=null;
-        $('#logout').hide(); 
-        $('#editProfile').hide()
+        $('#title').show();
+        $('#go_back_button').hide();
+        $('#topic').hide();
         Swal.fire({
           position: 'bottom-end',
           icon: 'success',
@@ -481,6 +633,7 @@ $(function() {
         $(document).on('click', this.id+' .profile', () => this.profileController());
         $(document).on('click', this.id+' .button_light', () => this.menuLight());
         $(document).on('click', this.id+' .button_settings', () => this.menuSettings());
+        $(document).on('click', this.id+' .button_electricity', () => this.menuElectricity());
         $(document).on('click', this.id+' .button_water', () => this.menuWater());
         
       };

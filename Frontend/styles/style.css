@@ -47,13 +47,13 @@ svg {
 }
 
 h1{
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Josefin Sans', sans-serif;
   font-size: 1.5rem;
   font-weight: 500;
   letter-spacing: 0.025rem;
   font-style: normal;
   text-transform: uppercase;
-  color: #000000;
+  color: #508BCA;
   background-color: #ffffff;
   border-radius: 1.25rem;
   -webkit-border-radius: 1.25rem;
@@ -64,16 +64,32 @@ h1{
   border-color: #000000;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
+  text-transform: none;
   -box-shadow: none;
 }
 
-.parteSuperior {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    background-color: rgb(188, 187, 187);
+h2{
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.025rem;
+  font-style: normal;
+  text-transform: uppercase;
+  color: #508BCA;
+  background-color: #ffffff;
+  border-radius: 1.25rem;
+  -webkit-border-radius: 1.25rem;
+  -moz-border-radius: 1.25rem;
+  padding: 0.35rem 0.75rem;
+  border-style: none;
+  border-width: 0.125rem;
+  border-color: #000000;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  text-transform: none;
+  -box-shadow: none;
 }
+
 
 .button-50 {
   appearance: button;
@@ -81,13 +97,12 @@ h1{
   background-image: none;
   border: 1px solid #000;
   border-radius: 4px;
-  box-shadow: #fff 4px 4px 0 0,#000 4px 4px 0 1px;
   box-sizing: border-box;
   color: #fff;
   cursor: pointer;
   display: inline-block;
-  font-family: ITCAvantGardeStd-Bk,Arial,sans-serif;
-  font-size: 14px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 18px;
   font-weight: 400;
   line-height: 20px;
   margin: 0 5px 10px 0;
@@ -257,28 +272,6 @@ h1{
   font-style: normal;
 }
 
-
-#title {
-  font-family: 'Heebo', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 500;
-  letter-spacing: 0.5rem;
-  font-style: normal;
-  text-transform: uppercase;
-  color: #C6C6C6;
-  background-color: #508BCA;
-  border-radius: 1.25rem;
-  -webkit-border-radius: 1.25rem;
-  -moz-border-radius: 1.25rem;
-  padding: 0.35rem 0.5rem;
-  margin-top: 10px;
-  border-style: none;
-  border-width: 0rem;
-  border-color: #EF2D56;
-  -webkit-box-shadow: inset 66px 0px 0px 0px rgba(154,153,150,0.7);
-  -moz-box-shadow: inset 66px 0px 0px 0px rgba(154,153,150,0.7);
-  -box-shadow: inset 66px 0px 0px 0px rgba(154,153,150,0.7);   
-}
 
 .dividend_menu{
     float: left;
@@ -683,4 +676,85 @@ input:checked + .slider_toggle:before {
 
 .column_container{
   display: flex;
+  margin-left: 10px;
 }
+
+
+
+.parteSuperior {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 90px;
+  width: 100%;
+  background-color: rgb(188, 187, 187);
+}
+
+.parteSuperior h1{
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.09rem;
+  font-style: normal;
+  text-transform: capitalize;
+  color: #508BCA;
+  background-color: rgb(188, 187, 187);
+}
+.parteSuperior button{
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: none;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.input_time{
+  border: none;
+  margin-left: 10px;
+  font-size: 30px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: 600;
+  color: #508BCA;
+}
+
+.data_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 20px;
+}
+.data_container h1, .data_container h2{
+  margin: 0;
+  padding: 3px;
+}
+.data_container h1{
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: normal;
+  text-transform: capitalize;
+  color: #508BCA;
+}
+.data_container h2{
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 300;
+  font-style: normal;
+  text-transform: none;
+  color: #508BCA;
+}
+
+.column_container_water{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.column_container_water div{
+  margin: 10px;
+}
+
