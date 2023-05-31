@@ -24,99 +24,7 @@ $(function() {
         `
       };
 
-      ComponentsVC.prototype.water_electricity = function(consume, StatusLights) {
-        return  `
-        <div class="row">
-        <div class="dividend_menu">
-        <h1>CONSUME</h1>
-            <table class="tabla_valores">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Consum</th>
-                  <th>Data</th>
-                  <th>Hour</th>
-                </tr>
-              </thead>
-              <tbody>
-              <tr>
-              <tr>`
-              +
-            consume.reduce(
-              (ac, component) => 
-              ac += 
-              `
-                <td>${component.type === 0 ? "Water" : "Electricity"}</td>
-                <td>${component.consum} ${component.type === 0 ? "L" : "kWh"}</td>
-                <td>${new Date(component.date).toLocaleDateString()}</td>
-                <td>${new Date(component.date).getHours()}:${new Date(component.date).getMinutes()}:${new Date(component.date).getSeconds()}</td>
-              `, 
-              "") +  
-              `</tr>
-              </tbody>
-            </table>
-          </div>`
-          +
-        `<div class="dividend_menu">
-        <h1>STATUS LIGHTS</h1>
-        <table class="tabla_valores">
-              <thead>
-                <tr>
-                  <th>Power</th>
-                  <th>Automatic</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-              <tr>
-              <tr>
-                <td>${StatusLights.power}</td>
-                <td>${StatusLights.automatic === 0 ? "Off" : "On"}</td>
-                <td>${StatusLights.status === 0 ? "Off" : "On"}</td>
-              </tr>
-              </tbody>
-        </table>
-        <br>
-        <table class="tabla_options">
-          <tbody>
-            <tr>
-              <td>
-              Power managment
-              </td>
-              <td>
-                <input type="range" min="1" max="100" value="${StatusLights.power}" class="slider power_mode" id="power_mode_value">
-              <td>
-            </tr>
-            <tr>
-              <td>
-                Automatic mode
-              </td>
-              <td>
-                <div class="button r" id="button-1">
-                  <input type="checkbox" class="checkbox automatic_mode" id="automatic_mode_value" ${StatusLights.automatic === 0 ? 'checked': ''}/>
-                  <div class="knobs"></div>
-                  <div class="layer"></div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Status mode
-              </td>
-              <td>
-                <div class="button r" id="button-1">
-                  <input type="checkbox" class="checkbox status_mode" id="status_mode_value" ${StatusLights.status === 0 ? 'checked': ''}/>
-                  <div class="knobs"></div>
-                  <div class="layer"></div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </tr>
-        </div>
-        </div>`
-      };
+
 
       ComponentsVC.prototype.menu = function (){
         return `
@@ -143,14 +51,14 @@ $(function() {
           <div>
             <h1>Power<h1>
             <label class="switch">
-              <input type="checkbox">
+              <input type="checkbox" id="status_mode_value">
               <span class="slider_toggle round"></span>
             </label>
           </div>
           <div>
             <h1>Automatic<h1>
             <label class="switch">
-              <input type="checkbox">
+              <input type="checkbox" id="automatic_mode_value">
               <span class="slider_toggle round"></span>
             </label>
           </div>
@@ -187,20 +95,20 @@ $(function() {
         `
       }
 
-      ComponentsVC.prototype.MenuWaterHtml = function(){
+      ComponentsVC.prototype.MenuWaterHtml = function(waterConsumitionToday, waterConsumAverage){
         return `
         <div class="column_container_water">
           <div>
             <h1>Today</h1>
             <div class="data_container">
-              <h1>13</h1>
+              <h1>${waterConsumitionToday}</h1>
               <h2>L</h2>
             </div>
           </div>
           <div>
             <h1>Average</h1>
             <div class="data_container">
-              <h1>28</h1>
+              <h1>${waterConsumAverage}</h1>
               <h2>L</h2>
             </div>
           </div>
@@ -208,27 +116,27 @@ $(function() {
         <div id="chartContainer" style="margin-top: 50px; height: 370px; width: 100%;"></div>   
         `
       }
-      ComponentsVC.prototype.MenuElectricityHtml = function(){
+      ComponentsVC.prototype.MenuElectricityHtml = function(todayConsum, weekConsum, MonthConsum){
         return`
         <div class="column_container">
           <div>
           <h1>Today</h1>
           <div class="data_container">
-          <h1>14</h1>
+          <h1>${todayConsum}</h1>
           <h2>kWh</h2>
           </div>
           </div>
           <div>
           <h1>This week</h1>
           <div class="data_container">
-          <h1>24</h1>
+          <h1>${weekConsum}</h1>
           <h2>kWh</h2>
           </div>
           </div>
           <div>
           <h1>This month</h1>  
           <div class="data_container">
-          <h1>289</h1>
+          <h1>${MonthConsum}</h1>
           <h2>kWh</h2>
           </div>
           </div>    
@@ -406,110 +314,151 @@ $(function() {
       ComponentsVC.prototype.menuWater= function() {
         $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Water Control';
-        $(this.id).html(this.MenuWaterHtml());
-        var chart = new CanvasJS.Chart("chartContainer", {
-          title:{
-            text: "Last week",
-            fontColor: "#508BCA",
-            fontWeight: "normal",
-            fontFamily:"sans-serif",
-          },
-          axisX: {
-            lineColor: "#508BCA",
-            labelFontColor: "#508BCA",
-            labelFontWeight: "normal",
-            labelFontFamily:"sans-serif",
-            lineThickness: 0,
-            tickThickness: 0,
-            gridThickness: 0,
-          },
-          axisY:{
-            gridThickness: 0,
-            tickLength: 0,
-            lineThickness: 0,
-            labelFormatter: function(){
-              return " ";
-            }
-          },
-          data: [
-          {
-            // Change type to "bar", "area", "spline", "pie",etc.
-            type: "column",
-            indexLabelFontColor: "#508BCA",
-            dataPoints: [
-              { label: "20/05",  y: 10, indexLabel: "{y}", color: "#508BCA" },
-              { label: "21/05", y: 15, indexLabel: "{y}", color: "#508BCA"   },
-              { label: "22/05", y: 25, indexLabel: "{y}", color: "#508BCA"   },
-              { label: "23/05",  y: 30, indexLabel: "{y}", color: "#508BCA"   },
-              { label: "24/05",  y: 28, indexLabel: "{y}", color: "#508BCA"   },
-              { label: "25/05",  y: 12, indexLabel: "{y}", color: "#508BCA"   },
-              { label: "26/05",  y: 19, indexLabel: "{y}", color: "#508BCA"   }
-            ]
-          }
-          ]
+        let p1 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/waterConsumToday/'+this.userId,
         });
-        chart.render();
+        let p2 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/waterConsumAverage/'+this.userId,
+        });
+        let p3 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/waterConsumWeek/'+this.userId,
+        });
+        Promise.all([p1, p2, p3])
+        .then(([r1, r2, r3]) => {
+          $(this.id).html(this.MenuWaterHtml(r1.message, r2.message));
+          let weekConsumition = r3.message;
+          var chart = new CanvasJS.Chart("chartContainer", {
+            title:{
+              text: "Last week",
+              fontColor: "#508BCA",
+              fontWeight: "normal",
+              fontFamily:"sans-serif",
+            },
+            axisX: {
+              lineColor: "#508BCA",
+              labelFontColor: "#508BCA",
+              labelFontWeight: "normal",
+              labelFontFamily:"sans-serif",
+              lineThickness: 0,
+              tickThickness: 0,
+              gridThickness: 0,
+            },
+            axisY:{
+              gridThickness: 0,
+              tickLength: 0,
+              lineThickness: 0,
+              labelFormatter: function(){
+                return " ";
+              }
+            },
+            data: [
+            {
+              // Change type to "bar", "area", "spline", "pie",etc.
+              type: "column",
+              indexLabelFontColor: "#508BCA",
+              dataPoints: [
+                { label: weekConsumition[0].date,  y: weekConsumition[0].consumption, indexLabel: "{y}", color: "#508BCA" },
+                { label: weekConsumition[1].date, y: weekConsumition[1].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[2].date, y: weekConsumition[2].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[3].date,  y: weekConsumition[3].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[4].date,  y: weekConsumition[4].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[5].date,  y: weekConsumition[5].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[6].date,  y: weekConsumition[6].consumption, indexLabel: "{y}", color: "#508BCA"   }
+              ]
+            }
+            ]
+          });
+          chart.render();
+        })
+        .catch(error => {console.error(error.status, error.responseText);
+        });
+
       }
 
       ComponentsVC.prototype.menuElectricity= function() {
-
+    
         $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Electricity Control';
-        $(this.id).html(this.MenuElectricityHtml());
-        var dps = []; // dataPoints
-        var chart = new CanvasJS.Chart("chartContainer", {
-          data: [{
-            type: "line",
-            dataPoints: dps
-          }],
-          axisX: {
-            lineColor: "#508BCA",
-            labelFontColor: "#508BCA",
-            labelFontWeight: "normal",
-            labelFontFamily:"sans-serif",
-            lineThickness: 5,
-            tickThickness: 0,
-            gridThickness: 0,
-          },
-          axisY: {
-            lineColor: "#508BCA",
-            labelFontColor: "#508BCA",
-            labelFontWeight: "normal",
-            labelFontFamily:"sans-serif",
-            lineThickness: 5,
-            tickThickness: 0,
-            gridThickness: 0,
-          }
+        let p1 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/electricityConsumToday/'+this.userId,
         });
-        
-        var xVal = 0;
-        var yVal = 100; 
-        var updateInterval = 1000;
-        var dataLength = 20; // number of dataPoints visible at any point
-        
-        var updateChart = function (count) {
-        
-          count = count || 1;
-        
-          for (var j = 0; j < count; j++) {
-            yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
-            dps.push({
-              x: xVal,
-              y: yVal
-            });
-            xVal++;
-          }
-        
-          if (dps.length > dataLength) {
-            dps.shift();
-          }
-        
-          chart.render();
-        };
-        
-        updateChart(dataLength);
-        setInterval(function(){updateChart()}, updateInterval);
-        
+        let p2 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/electricityConsumWeek/'+this.userId,
+        });
+        let p3 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/electricityConsumMonth/'+this.userId,
+        });
+        Promise.all([p1, p2, p3])
+        .then(([r1, r2, r3]) => {
+          $(this.id).html(this.MenuElectricityHtml(r1.message, r2.message, r3.message));
+          var dps = []; // dataPoints
+          var chart = new CanvasJS.Chart("chartContainer", {
+            data: [{
+              type: "line",
+              dataPoints: dps
+            }],
+            axisX: {
+              lineColor: "#508BCA",
+              labelFontColor: "#508BCA",
+              labelFontWeight: "normal",
+              labelFontFamily:"sans-serif",
+              lineThickness: 5,
+              tickThickness: 0,
+              gridThickness: 0,
+            },
+            axisY: {
+              lineColor: "#508BCA",
+              labelFontColor: "#508BCA",
+              labelFontWeight: "normal",
+              labelFontFamily:"sans-serif",
+              lineThickness: 5,
+              tickThickness: 0,
+              gridThickness: 0,
+            }
+          });
+          
+          var xVal = 0;
+          var yVal = 100; 
+          var updateInterval = 1000;
+          var dataLength = 20; // number of dataPoints visible at any point
+          
+          var updateChart = function (count) {
+          
+            count = count || 1;
+          
+            for (var j = 0; j < count; j++) {
+              yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
+              dps.push({
+                x: xVal,
+                y: yVal
+              });
+              xVal++;
+            }
+          
+            if (dps.length > dataLength) {
+              dps.shift();
+            }
+          
+            chart.render();
+          };
+          
+          updateChart(dataLength);
+          setInterval(function(){updateChart()}, updateInterval);
+        })
+        .catch(error => {console.error(error.status, error.responseText);
+        });
       };
 
       ComponentsVC.prototype.menuLight = function(){
@@ -518,7 +467,8 @@ $(function() {
         document.getElementById('topic').textContent = 'Light Control';
         $(this.id).html(this.menuLightHtml());
         const rangeInput = document.getElementById("myRangeMenuLight");
-
+        const url = this.url;
+        const userId = this.userId;
         rangeInput.addEventListener("input", function() {
           // Calculate the percentage value of the thumb position
           let percentage = parseInt(this.value);
@@ -529,6 +479,99 @@ $(function() {
           else if(this.value<20) percentage+=5;
           console.log(percentage);
           this.style.backgroundSize = `${percentage}% 100%`;
+          $.ajax({
+            dataType: "json",
+            method: "PUT",
+            url: url + '/lightControlPower/'+userId,
+            data: {percentage}
+          })
+          .then(() => {
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: 'The data has been modified',
+              showConfirmButton: false,
+              timer: 1750,
+              toast: true
+            })
+          })
+          .catch(error => {
+            console.error(error.status, error.responseText);
+            Swal.fire({
+              position: 'center',
+              icon: 'error',
+              title: 'Error ocurred',
+              text: 'Something went wrong',
+              showConfirmButton: false,
+              timer: 3000,
+              toast: true
+            }) 
+          })
+        });
+        const checkboxAutomatic = document.getElementById("automatic_mode_value");
+        checkboxAutomatic.addEventListener("change", function(event) {
+          // Check if the checkbox is checked or not
+          const isChecked = this.checked;
+          $.ajax({
+            dataType: "json",
+            method: "GET",
+            url: url + '/lightControlAutomatic/'+userId,
+          })
+          .then(() => {
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: 'The status of the light has been modified',
+              showConfirmButton: false,
+              timer: 1750,
+              toast: true
+            })
+          })
+          .catch(error => {
+            console.error(error.status, error.responseText);
+            Swal.fire({
+              position: 'center',
+              icon: 'error',
+              title: 'Error ocurred',
+              text: 'Something went wrong',
+              showConfirmButton: false,
+              timer: 3000,
+              toast: true
+            })
+          });
+        });
+        const checkboxStatus = document.getElementById("status_mode_value");
+        checkboxStatus.addEventListener("change", function(event) {
+          // Check if the checkbox is checked or not
+          const isChecked = this.checked;
+          $.ajax({
+            dataType: "json",
+            method: "GET",
+            url: url + '/lightControlStatus/'+userId,
+          })
+          .then(() => {
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: 'The status of the light has been modified',
+              showConfirmButton: false,
+              timer: 1750,
+              toast: true
+            })
+          })
+          .catch(error => {
+            console.error(error.status, error.responseText);
+            Swal.fire({
+              position: 'center',
+              icon: 'error',
+              title: 'Error ocurred',
+              text: 'Something went wrong',
+              showConfirmButton: false,
+              timer: 3000,
+              toast: true
+            })
+          });
+           
         });
       }
       ComponentsVC.prototype.menuController = function() {
@@ -554,7 +597,8 @@ $(function() {
         $('#topic').show();
         
         const rangeInput = document.getElementById("myRange");
-
+        const url = this.url;
+        const userId = this.userId;
         rangeInput.addEventListener("input", function() {
           // Calculate the percentage value of the thumb position
           let percentage = parseInt(this.value);
@@ -565,6 +609,34 @@ $(function() {
           else if(this.value<20) percentage+=5;
           console.log(percentage);
           this.style.backgroundSize = `${percentage}% 100%`;
+          $.ajax({
+            dataType: "json",
+            method: "PUT",
+            url: url + '/lightControlPower/'+userId,
+            data: {percentage}
+          })
+          .then(() => {
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: 'The data has been modified',
+              showConfirmButton: false,
+              timer: 1750,
+              toast: true
+            })
+          })
+          .catch(error => {
+            console.error(error.status, error.responseText);
+            Swal.fire({
+              position: 'center',
+              icon: 'error',
+              title: 'Error ocurred',
+              text: 'Something went wrong',
+              showConfirmButton: false,
+              timer: 3000,
+              toast: true
+            }) 
+          })
         });
       };
 

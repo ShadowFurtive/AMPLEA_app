@@ -165,6 +165,183 @@ exports.modifyLightPower = (iduser, power) => {
   });
 }; 
 
+exports.getWaterConsumToday = (machineId) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const statusLight =  datos.consumition.filter(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00:000
+  
+      return (
+        element.machineId === machineId &&
+        element.type === 0 &&
+        elementDate.getTime() === currentDate.getTime()
+      );
+    });
+
+    const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
+    resolve(JSON.parse(JSON.stringify(totalConsumption)));
+  });
+}; 
+
+exports.getWaterConsumAverage = (machineId) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+  
+    const statusLight = datos.consumition.filter(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0);
+  
+      return (
+        element.machineId === machineId &&
+        element.type === 0 &&
+        elementDate >= sevenDaysAgo &&
+        elementDate <= currentDate
+      );
+    });
+  
+    const totalElementsObtained = statusLight.length;
+    const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
+    const averageConsumption = (totalConsumption / totalElementsObtained).toFixed(1);
+  
+    resolve(JSON.parse(JSON.stringify(averageConsumption)));
+  });
+}; 
+
+exports.getWaterConsumWeek = (machineId) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+  
+    const statusLight = datos.consumition.filter(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0);
+  
+      return (
+        element.machineId === machineId &&
+        element.type === 0 &&
+        elementDate >= sevenDaysAgo &&
+        elementDate <= currentDate
+      );
+    });
+  
+    const consumptionArray = Array(7).fill(0);
+  
+    statusLight.forEach(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0);
+      const daysAgo = Math.floor((currentDate - elementDate) / (24 * 60 * 60 * 1000));
+      if (daysAgo >= 0 && daysAgo < 7) {
+        consumptionArray[6 - daysAgo] += element.consum;
+      }
+    });
+    
+    const consumptionObjectArray = [];
+    const date = new Date();
+    date.setDate(date.getDate() - 6);
+    date.setHours(0, 0, 0, 0);
+    for (let i = 0; i < 7; i++) {
+      const dateAux = new Date();
+      dateAux.setDate(date.getDate() + i);
+      dateAux.setHours(0, 0, 0, 0);
+      const dayLabel = dateAux.toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "2-digit"
+      });
+      const consumptionObject = {
+        date: dayLabel,
+        consumption: consumptionArray[i]
+      };
+      consumptionObjectArray.push(consumptionObject);
+    }
+  
+    resolve(JSON.parse(JSON.stringify(consumptionObjectArray)));
+  });
+}; 
+
+
+exports.getElectricityConsumToday = (machineId) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const statusLight =  datos.consumition.filter(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00:000
+  
+      return (
+        element.machineId === machineId &&
+        element.type === 1 &&
+        elementDate.getTime() === currentDate.getTime()
+      );
+    });
+
+    const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
+    resolve(JSON.parse(JSON.stringify(totalConsumption)));
+  });
+}; 
+
+
+exports.getElectricityConsumWeek = (machineId) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+  
+    const statusLight = datos.consumition.filter(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0);
+  
+      return (
+        element.machineId === machineId &&
+        element.type === 1 &&
+        elementDate >= sevenDaysAgo &&
+        elementDate <= currentDate
+      );
+    });
+  
+    const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
+  
+    resolve(JSON.parse(JSON.stringify(totalConsumption)));
+  });
+}; 
+
+
+exports.getElectricityConsumMonth = (machineId) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    
+    const statusLight = datos.consumition.filter(element => {
+      const elementDate = new Date(element.date);
+      elementDate.setHours(0, 0, 0, 0);
+      return (
+        element.machineId === machineId &&
+        element.type === 1 &&
+        elementDate.getFullYear() === currentDate.getFullYear() &&
+        elementDate.getMonth() === currentDate.getMonth()
+      );
+    });
+    console.log(statusLight)
+
+    const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
+  
+    resolve(JSON.parse(JSON.stringify(totalConsumption)));
+  });
+}; 
+
 
 // Carrega els elements guardats en el fitxer si existeix.
 load();

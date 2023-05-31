@@ -116,7 +116,8 @@ const modifyLightStatus = (req, res, next) => {
 
 const modifyLightPower = (req, res, next) => {
   let iduser = Number(req.params.id);
-  let power = req.body.power_input;
+  let power = req.body.percentage;
+  console.log(power);
   if(!iduser || !power)
     throw Error('Id and power user are required');
   components_model.modifyLightPower(iduser, power)
@@ -138,6 +139,90 @@ const modifyLightAutomatic = (req, res, next) => {
     res.status(201).send({
       success: 'true',
       message: 'Done',
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+const getWaterConsumToday = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getWaterConsumToday(iduser)
+  .then((totalConsumption) => {
+    res.status(201).send({
+      success: 'true',
+      message: totalConsumption,
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+const getWaterConsumAverage = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getWaterConsumAverage(iduser)
+  .then((totalAverage) => {
+    res.status(201).send({
+      success: 'true',
+      message: totalAverage,
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+const getWaterConsumWeek = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getWaterConsumWeek(iduser)
+  .then((consumeWeek) => {
+    res.status(201).send({
+      success: 'true',
+      message: consumeWeek,
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+const getElectricityConsumToday = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getElectricityConsumToday(iduser)
+  .then((totalConsumption) => {
+    res.status(201).send({
+      success: 'true',
+      message: totalConsumption,
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+const getElectricityConsumWeek = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getElectricityConsumWeek(iduser)
+  .then((totalConsumption) => {
+    res.status(201).send({
+      success: 'true',
+      message: totalConsumption,
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+const getElectricityConsumMonth = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getElectricityConsumMonth(iduser)
+  .then((totalConsumption) => {
+    res.status(201).send({
+      success: 'true',
+      message: totalConsumption,
     });
   })
   .catch(error => {next(Error(`An error ocurred:\n${error}`));});
@@ -200,6 +285,12 @@ app.get('/lightControl/:id',  getLightStatus);
 app.get('/lightControlStatus/:id', modifyLightStatus);
 app.get('/lightControlAutomatic/:id', modifyLightAutomatic);
 app.put('/lightControlPower/:id', modifyLightPower);
+app.get('/waterConsumToday/:id', getWaterConsumToday);
+app.get('/waterConsumAverage/:id', getWaterConsumAverage);
+app.get('/waterConsumWeek/:id', getWaterConsumWeek);
+app.get('/electricityConsumToday/:id', getElectricityConsumToday);
+app.get('/electricityConsumMonth/:id', getElectricityConsumMonth);
+app.get('/electricityConsumWeek/:id', getElectricityConsumWeek);
 app.put('/login/:id', modifyUser);
 app.use(errorController);
 
