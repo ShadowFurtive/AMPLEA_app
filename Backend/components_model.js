@@ -2,6 +2,7 @@
 /*jshint node: true */
 /*jshint esversion: 6 */
 const fs = require("fs");
+const { start } = require("repl");
 
 // Nom del fitxer de text on es guarden els elements en format JSON.
 const DB_FILENAME = "datos.json";
@@ -53,44 +54,19 @@ const save = () => {
 };
 
 
-exports.getAllCountries = (where) => {
-  where  = (typeof where  !== 'undefined') ?  where : {};
-  return new Promise((resolve, reject) => {
-    datos.paises.map((e, i) => e.id = i);
-    let t = datos.paises.filter(e => {
-      for (let f in where) {
-        let ok = false;
-        if (where[f] instanceof Array) {
-          let val = where[f][0];
-          ok = e.name.toLowerCase().includes(val.toLowerCase());
-        } else {// No operator means === operator
-          ok = e === where[f];
-        }
-        if (!ok) return false;
-      }
-      return true;
-    });
-    resolve(JSON.parse(JSON.stringify(t)));
-  });
-};
-
-exports.getConsum = (id) => {
-  return new Promise((resolve, reject) => {
-    const listaNueva =  datos.consumition.filter(function(datos) {
-      return datos.machineId === id;
-    });
-    if(!listaNueva) reject(new Error(`No hay datos cargados`));
-    resolve(JSON.parse(JSON.stringify(listaNueva)));
-  });
-};
-
 exports.getLightStatus= (id) => {
   return new Promise((resolve, reject) => {
     const statusLight =  datos.light.find((i) => i.machineId === id);
     if(!statusLight) reject(new Error(`Error fatal. Contacte con un administrador`));
-    resolve(JSON.parse(JSON.stringify(statusLight)));
+    var data = {
+      status: statusLight.status,
+      automatic: statusLight.automatic
+    };
+    resolve(JSON.parse(JSON.stringify(data)));
   });
 };
+
+
 
 // user options
 exports.checkUser = (user, password) => {
@@ -117,14 +93,6 @@ exports.modifyUser = (idUsuario, user, password) => {
 };
 
 
-exports.getAcces = (id, user_id) => {
-  return new Promise((resolve, reject) => {
-    let valor = datos.paises.find((i) => i.paisesId === parseInt(id) && i.usuariosId === parseInt(user_id));
-    if(valor === undefined) valor=false;
-    else valor=true;
-    resolve(JSON.parse(JSON.stringify(valor)));
-  });
-}
 
 exports.modifyLightStatus = (iduser) => {
   return new Promise((resolve, reject) => {
@@ -133,6 +101,20 @@ exports.modifyLightStatus = (iduser) => {
       reject(new Error(`El valor del parámetro id no es válido.`));
     } else {
       statusLight.status = +!statusLight.status;
+      save();
+      resolve();
+    }
+  });
+}; 
+
+exports.modifyLightSchedule = (iduser, start_hour, end_hour) => {
+  return new Promise((resolve, reject) => {
+    const light =  datos.light.find((i) => i.machineId === iduser);
+    if (typeof light === "undefined") {
+      reject(new Error(`El valor del parámetro id no es válido.`));
+    } else {
+      light.hourStart = start_hour;
+      light.hourEnd = end_hour;
       save();
       resolve();
     }
@@ -165,25 +147,6 @@ exports.modifyLightPower = (iduser, power) => {
   });
 }; 
 
-exports.getWaterConsumToday = (machineId) => {
-  return new Promise((resolve, reject) => {
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-    const statusLight =  datos.consumition.filter(element => {
-      const elementDate = new Date(element.date);
-      elementDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00:000
-  
-      return (
-        element.machineId === machineId &&
-        element.type === 0 &&
-        elementDate.getTime() === currentDate.getTime()
-      );
-    });
-
-    const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
-    resolve(JSON.parse(JSON.stringify(totalConsumption)));
-  });
-}; 
 
 exports.getWaterConsumAverage = (machineId) => {
   return new Promise((resolve, reject) => {
@@ -214,7 +177,7 @@ exports.getWaterConsumAverage = (machineId) => {
   });
 }; 
 
-exports.getWaterConsumWeek = (machineId) => {
+exports.getConsumWeek = (machineId, type) => {
   return new Promise((resolve, reject) => {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
@@ -229,7 +192,7 @@ exports.getWaterConsumWeek = (machineId) => {
   
       return (
         element.machineId === machineId &&
-        element.type === 0 &&
+        element.type === type &&
         elementDate >= sevenDaysAgo &&
         elementDate <= currentDate
       );
@@ -270,7 +233,7 @@ exports.getWaterConsumWeek = (machineId) => {
 }; 
 
 
-exports.getElectricityConsumToday = (machineId) => {
+exports.getConsumToday = (machineId, type) => {
   return new Promise((resolve, reject) => {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
@@ -280,7 +243,7 @@ exports.getElectricityConsumToday = (machineId) => {
   
       return (
         element.machineId === machineId &&
-        element.type === 1 &&
+        element.type === type &&
         elementDate.getTime() === currentDate.getTime()
       );
     });
@@ -334,7 +297,6 @@ exports.getElectricityConsumMonth = (machineId) => {
         elementDate.getMonth() === currentDate.getMonth()
       );
     });
-    console.log(statusLight)
 
     const totalConsumption = statusLight.reduce((sum, element) => sum + element.consum, 0);
   

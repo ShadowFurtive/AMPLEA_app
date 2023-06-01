@@ -12,7 +12,6 @@ $(function() {
       this.searchProduct = "";
       
 
-      // <span class="nobr"><input type="text" class="search" value="${this.search}" placeholder="Search" onfocus="let v=this.value; this.value=''; this.value=v"> <img class="dsearch" title="Clean Search" src="public/icon_delete.png"/></span>
 
       ComponentsVC.prototype.loginForm = function() {
         return `
@@ -72,14 +71,14 @@ $(function() {
           <div>
             <h1>Schedule</h1>
             <h2>From</h2>
-            <input class="input_time" type="time" id="appt" name="appt" min="09:00" value="10:00" max="18:00" required>
+            <input class="input_time input_time_start" type="time" id="appt_start" name="appt_start" value="10:00">
           </div>
           <div>
             <h2>To</h2>
-            <input class="input_time" type="time" id="appt" name="appt" min="09:00" value="13:00" max="18:00" required>
+            <input class="input_time input_time_end" type="time" id="appt_end" name="appt_end" value="13:00">
           </div>
           <br>
-          <button class="button-50 save" type="button" id="save">Save</button>
+          <button class="button-50 save_schedule" type="button" id="save_schedule">Save</button>
         
         </div>
         `
@@ -220,82 +219,6 @@ $(function() {
         });
       };
 
-      ComponentsVC.prototype.statusController = function() {
-        $.ajax({
-          dataType: "json",
-          method: "GET",
-          url: this.url + '/lightControlStatus/'+this.userId,
-        })
-        .then(() => {
-          this.menuController();
-          Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'The status of the light has been modified',
-            showConfirmButton: false,
-            timer: 1750,
-            toast: true
-          })
-        })
-        .catch(error => {
-          console.error(error.status, error.responseText);
-          Swal.fire({
-            position: 'center',
-            icon: 'error',
-            title: 'Error ocurred',
-            text: 'Something went wrong',
-            showConfirmButton: false,
-            timer: 3000,
-            toast: true
-          })
-        });
-      };
-
-      ComponentsVC.prototype.powerController = function() {
-        let power_input = $('#power_mode_value').val();
-        $.ajax({
-          dataType: "json",
-          method: "PUT",
-          url: this.url + '/lightControlPower/'+this.userId,
-          data: {power_input}
-        })
-        .then(() => {
-          this.menuController();
-        })
-        .catch(error => { console.error(error.status, error.responseText);}); 
-      };
-
-      ComponentsVC.prototype.automaticController = function() {
-        $.ajax({
-          dataType: "json",
-          method: "GET",
-          url: this.url + '/lightControlAutomatic/'+this.userId,
-        })
-        .then(() => {
-          this.menuController();
-          Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'The status of the light has been modified',
-            showConfirmButton: false,
-            timer: 1750,
-            toast: true
-          })
-        })
-        .catch(error => {
-          console.error(error.status, error.responseText);
-          Swal.fire({
-            position: 'center',
-            icon: 'error',
-            title: 'Error ocurred',
-            text: 'Something went wrong',
-            showConfirmButton: false,
-            timer: 3000,
-            toast: true
-          })
-        });
-      };
-
       ComponentsVC.prototype.goBackController = function() {
         this.menuController();
       };
@@ -400,14 +323,30 @@ $(function() {
           method: "GET",
           url: this.url+'/electricityConsumMonth/'+this.userId,
         });
-        Promise.all([p1, p2, p3])
-        .then(([r1, r2, r3]) => {
+        let p4 = $.ajax({
+          dataType: "json",
+          method: "GET",
+          url: this.url+'/ElectricityConsum/'+this.userId,
+        });
+        Promise.all([p1, p2, p3, p4])
+        .then(([r1, r2, r3, r4]) => {
+          weekConsumition = r4.message;
           $(this.id).html(this.MenuElectricityHtml(r1.message, r2.message, r3.message));
           var dps = []; // dataPoints
           var chart = new CanvasJS.Chart("chartContainer", {
             data: [{
               type: "line",
-              dataPoints: dps
+              indexLabelFontSize: 16,
+              indexLabelFontColor: "#508BCA",
+              dataPoints: [
+                { label: weekConsumition[0].date,  y: weekConsumition[0].consumption, indexLabel: "{y}", color: "#508BCA" },
+                { label: weekConsumition[1].date, y: weekConsumition[1].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[2].date, y: weekConsumition[2].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[3].date,  y: weekConsumition[3].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[4].date,  y: weekConsumition[4].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[5].date,  y: weekConsumition[5].consumption, indexLabel: "{y}", color: "#508BCA"   },
+                { label: weekConsumition[6].date,  y: weekConsumition[6].consumption, indexLabel: "{y}", color: "#508BCA"   }
+              ]
             }],
             axisX: {
               lineColor: "#508BCA",
@@ -428,34 +367,7 @@ $(function() {
               gridThickness: 0,
             }
           });
-          
-          var xVal = 0;
-          var yVal = 100; 
-          var updateInterval = 1000;
-          var dataLength = 20; // number of dataPoints visible at any point
-          
-          var updateChart = function (count) {
-          
-            count = count || 1;
-          
-            for (var j = 0; j < count; j++) {
-              yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
-              dps.push({
-                x: xVal,
-                y: yVal
-              });
-              xVal++;
-            }
-          
-            if (dps.length > dataLength) {
-              dps.shift();
-            }
-          
-            chart.render();
-          };
-          
-          updateChart(dataLength);
-          setInterval(function(){updateChart()}, updateInterval);
+          chart.render();
         })
         .catch(error => {console.error(error.status, error.responseText);
         });
@@ -466,9 +378,23 @@ $(function() {
         $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Light Control';
         $(this.id).html(this.menuLightHtml());
+        const checkboxAutomatic = document.getElementById("automatic_mode_value");
+        const checkboxStatus = document.getElementById("status_mode_value");
         const rangeInput = document.getElementById("myRangeMenuLight");
         const url = this.url;
         const userId = this.userId;
+        $.ajax({
+          dataType: "json",
+          url: url + '/lightControlValue/'+userId,
+        })
+        .then((r1) => {
+          values = r1.message;
+          if(values.status == 1) checkboxStatus.click();
+          if(values.automatic == 1) checkboxAutomatic.click();
+        })
+        .catch(error => {
+          console.error(error.status, error.responseText);
+        })
         rangeInput.addEventListener("input", function() {
           // Calculate the percentage value of the thumb position
           let percentage = parseInt(this.value);
@@ -508,7 +434,6 @@ $(function() {
             }) 
           })
         });
-        const checkboxAutomatic = document.getElementById("automatic_mode_value");
         checkboxAutomatic.addEventListener("change", function(event) {
           // Check if the checkbox is checked or not
           const isChecked = this.checked;
@@ -540,7 +465,6 @@ $(function() {
             })
           });
         });
-        const checkboxStatus = document.getElementById("status_mode_value");
         checkboxStatus.addEventListener("change", function(event) {
           // Check if the checkbox is checked or not
           const isChecked = this.checked;
@@ -574,22 +498,8 @@ $(function() {
            
         });
       }
+
       ComponentsVC.prototype.menuController = function() {
-        /*let p1 = $.ajax({
-          dataType: "json",
-          url: this.url+'/consumition/'+this.userId,
-        });
-        let p2 = $.ajax({
-          dataType: "json",
-          url: this.url+'/lightControl/'+this.userId,
-        });
-        Promise.all([p1, p2])
-        .then(([r1, r2]) => {
-          let consume = r1.message;
-          let StatusLights = r2.message;
-          $(this.id).html(this.menu(consume, StatusLights));
-        })
-        .catch(error => {console.error(error.status, error.responseText);});*/
         $(this.id).html(this.menu());
 
         $('#go_back_button').hide();
@@ -677,6 +587,41 @@ $(function() {
         }) 
       };
 
+
+      ComponentsVC.prototype.SaveScheController = function() {
+        let start_hour = $(this.id+' input[name=appt_start]').val();
+        let end_hour = $(this.id+' input[name=appt_end]').val();
+        console.log(start_hour, end_hour)
+        $.ajax({
+          dataType: "json",
+          method: "PUT",
+          url: this.url+'/lightScheduleModifier/'+this.userId,
+          data: {start_hour: start_hour, end_hour: end_hour}
+        })
+        .then(r => {
+          Swal.fire({
+            position: 'bottom-end',
+            icon: 'success',
+            title: 'Loggin correctly',
+            showConfirmButton: false,
+            timer: 1750,
+            toast: true
+          })
+        })
+        .catch(error => {
+          console.error(error.status, error.responseText);
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'User or password incorrect',
+            text: 'If not contact with the administrator',
+            showConfirmButton: false,
+            timer: 3000,
+            toast: true
+          })
+        })  
+      };
+
       ComponentsVC.prototype.logoutController = function() {
         this.userId=null;
         $('#title').show();
@@ -707,6 +652,7 @@ $(function() {
         $(document).on('click', this.id+' .button_settings', () => this.menuSettings());
         $(document).on('click', this.id+' .button_electricity', () => this.menuElectricity());
         $(document).on('click', this.id+' .button_water', () => this.menuWater());
+        $(document).on('click', this.id+' .save_schedule', () => this.SaveScheController());
         
       };
       ComponentsVC.prototype.loadController = function(){

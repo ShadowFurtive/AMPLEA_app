@@ -18,30 +18,7 @@ const components_model = require('./components_model');
 
 // CONTROLLER
 
-const getAllPaisesController = (req, res, next) => {
-  // components_model.getAll(...params)
-  let params = (typeof req.query.params !== 'undefined') ? JSON.parse(req.query.params) : [];
-  components_model.getAllCountries.apply(this, params)
-  .then(countries => {
-    res.status(201).send({
-      success: 'true',
-      message: countries,
-    });
-  })
-  .catch(error => {next(Error(`DB Error:\n${error}`));});
-};
 
-const getConsum = (req, res, next) => {
-  let id = Number(req.params.id);
-  components_model.getConsum(id)
-  .then(consumition => {
-    res.status(201).send({
-      success: 'true',
-      message: consumition,
-    });
-  })
-  .catch(error => {next(Error(`DB error:\n${error}`));});
-};
 
 const getLightStatus = (req, res, next) => {
   let id = Number(req.params.id);
@@ -71,35 +48,6 @@ const loginController = (req, res, next) => {
   .catch(error => {next(Error(`User not exist:\n${error}`));});
 };
 
-const getAccesController = (req, res, next) => {
-  let id = req.query.id;
-  let user_id = req.query.user_id;
-  if(!id)
-    throw Error('Id country are required');
-  components_model.getAcces(id, user_id)
-  .then((valor) => {
-    res.status(201).send({
-      success: 'true',
-      message: valor,
-    });
-  })
-  .catch(error => {next(Error(`User and country doesn't have correlation:\n${error}`));});
-};
-
-const getProduct = (req, res, next) => {
-  let id = Number(req.params.id);
-  if(!id)
-    throw Error('Id product are required');
-  components_model.getProduct(id)
-  .then((producto) => {
-    res.status(201).send({
-      success: 'true',
-      message: producto,
-    });
-  })
-  .catch(error => {next(Error(`Product for country doesn't exist:\n${error}`));});
-};
-
 const modifyLightStatus = (req, res, next) => {
   let iduser = Number(req.params.id);
   if(!iduser)
@@ -117,10 +65,26 @@ const modifyLightStatus = (req, res, next) => {
 const modifyLightPower = (req, res, next) => {
   let iduser = Number(req.params.id);
   let power = req.body.percentage;
-  console.log(power);
   if(!iduser || !power)
     throw Error('Id and power user are required');
   components_model.modifyLightPower(iduser, power)
+  .then(() => {
+    res.status(201).send({
+      success: 'true',
+      message: 'Done',
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
+
+const modifyLightSchedule = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  let start_hour = req.body.start_hour;
+  let end_hour = req.body.end_hour;
+  if(!iduser || !start_hour || !end_hour)
+    throw Error('Id, start hour and end hour are required');
+  components_model.modifyLightSchedule(iduser, start_hour, end_hour)
   .then(() => {
     res.status(201).send({
       success: 'true',
@@ -148,7 +112,7 @@ const getWaterConsumToday = (req, res, next) => {
   let iduser = Number(req.params.id);
   if(!iduser)
     throw Error('Id user are required');
-  components_model.getWaterConsumToday(iduser)
+  components_model.getConsumToday(iduser, 0)
   .then((totalConsumption) => {
     res.status(201).send({
       success: 'true',
@@ -176,7 +140,7 @@ const getWaterConsumWeek = (req, res, next) => {
   let iduser = Number(req.params.id);
   if(!iduser)
     throw Error('Id user are required');
-  components_model.getWaterConsumWeek(iduser)
+  components_model.getConsumWeek(iduser, 0)
   .then((consumeWeek) => {
     res.status(201).send({
       success: 'true',
@@ -190,7 +154,7 @@ const getElectricityConsumToday = (req, res, next) => {
   let iduser = Number(req.params.id);
   if(!iduser)
     throw Error('Id user are required');
-  components_model.getElectricityConsumToday(iduser)
+  components_model.getConsumToday(iduser, 1)
   .then((totalConsumption) => {
     res.status(201).send({
       success: 'true',
@@ -227,6 +191,21 @@ const getElectricityConsumMonth = (req, res, next) => {
   })
   .catch(error => {next(Error(`An error ocurred:\n${error}`));});
 };
+
+const getElectricityConsum = (req, res, next) => {
+  let iduser = Number(req.params.id);
+  if(!iduser)
+    throw Error('Id user are required');
+  components_model.getConsumWeek(iduser, 1)
+  .then((consumeWeek) => {
+    res.status(201).send({
+      success: 'true',
+      message: consumeWeek,
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
 
 const modifyUser = (req, res, next) => {
   let idusuario = Number(req.params.id);
@@ -280,10 +259,11 @@ app.use   ('*',                 logController);
 app.use   ('*',                 headersController);
 
 app.get ('/', loginController);
-app.get('/consumition/:id', getConsum);
 app.get('/lightControl/:id',  getLightStatus);
 app.get('/lightControlStatus/:id', modifyLightStatus);
+app.get('/lightControlValue/:id', getLightStatus);
 app.get('/lightControlAutomatic/:id', modifyLightAutomatic);
+app.put('/lightScheduleModifier/:id', modifyLightSchedule);
 app.put('/lightControlPower/:id', modifyLightPower);
 app.get('/waterConsumToday/:id', getWaterConsumToday);
 app.get('/waterConsumAverage/:id', getWaterConsumAverage);
@@ -291,6 +271,7 @@ app.get('/waterConsumWeek/:id', getWaterConsumWeek);
 app.get('/electricityConsumToday/:id', getElectricityConsumToday);
 app.get('/electricityConsumMonth/:id', getElectricityConsumMonth);
 app.get('/electricityConsumWeek/:id', getElectricityConsumWeek);
+app.get('/ElectricityConsum/:id', getElectricityConsum);
 app.put('/login/:id', modifyUser);
 app.use(errorController);
 
