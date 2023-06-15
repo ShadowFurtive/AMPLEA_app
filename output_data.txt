@@ -1,0 +1,30 @@
+Total time: 17.849292755126953 seconds
+Time per iteration: 0.017849292755126953 seconds
+Total time: 17.30892825126648 seconds
+Time per iteration: 0.01730892825126648 seconds
+Total time: 17.236274480819702 seconds
+Time per iteration: 0.017236274480819703 seconds
+Total time: 17.43516206741333 seconds
+Time per iteration: 0.01743516206741333 seconds
+Total time: 17.62923550605774 seconds
+Time per iteration: 0.01762923550605774 seconds
+Total time: 17.802520036697388 seconds
+Time per iteration: 0.017802520036697387 seconds
+Total time: 17.784393787384033 seconds
+Time per iteration: 0.017784393787384032 seconds
+Total time: 18.13824486732483 seconds
+Time per iteration: 0.018138244867324828 seconds
+Total time: 17.993730306625366 seconds
+Time per iteration: 0.017993730306625367 seconds
+Total time: 18.112083911895752 seconds
+Time per iteration: 0.01811208391189575 seconds
+Total time: 19.347513675689697 seconds
+Time per iteration: 0.0193475136756897 seconds
+Total time: 18.07707977294922 seconds
+Time per iteration: 0.018077079772949218 seconds
+Total time: 18.12668800354004 seconds
+Time per iteration: 0.018126688003540038 seconds
+Total time: 17.93167519569397 seconds
+Time per iteration: 0.01793167519569397 seconds
+Total time: 17.862473249435425 seconds
+Time per iteration: 0.017862473249435424 seconds

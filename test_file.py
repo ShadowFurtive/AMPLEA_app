@@ -1,0 +1,60 @@
+import requests
+import time
+
+# Define the base URL of your API
+base_url = 'http://localhost:8000'
+
+# Define the endpoints
+endpoints_get = [
+    '/',
+    '/lightControlStatus/1',
+    '/lightControlValue/1',
+    '/lightControlAutomatic/1',
+    '/waterConsumToday/1',
+    '/waterConsumAverage/1',
+    '/waterConsumWeek/1',
+    '/electricityConsumToday/1',
+    '/electricityConsumMonth/1',
+    '/electricityConsumWeek/1',
+    '/ElectricityConsum/1',
+]
+endpoints_put = [
+    '/lightScheduleModifier/1',
+    '/lightControlPower/1',
+    '/login/1'
+]
+
+# Function to make API calls and measure the execution time
+def make_api_calls():
+    for endpoint in endpoints_get:
+        url = base_url + endpoint
+        response = requests.get(url)  # Adjust the method (get, put, etc.) if needed
+        # Process the response as needed
+    for endpoint in endpoints_put:
+        url = base_url + endpoint
+        if(endpoint == '/login/1'):
+            data = {"user":"a","password":"a"}
+        elif(endpoint == '/lightScheduleModifier/1'):
+            data = {"start_hour":"10:00","end_hour":"13:00"}
+        else:
+            data = {"percentage":"40"}
+
+        response = requests.put(url, json=data)  # Ajusta los datos y la estructura según tus necesidades
+        # Procesa la respuesta según sea necesario
+
+
+# Define the number of iterations
+num_iterations = 1000
+
+# Perform the API calls and measure the execution time
+start_time = time.time()
+for _ in range(num_iterations):
+    make_api_calls()
+end_time = time.time()
+
+# Calculate the total execution time
+total_time = end_time - start_time
+
+# Print the execution time per iteration
+print(f'Total time: {total_time} seconds')
+print(f'Time per iteration: {total_time/num_iterations} seconds')
