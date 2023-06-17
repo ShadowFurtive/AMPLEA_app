@@ -1,10 +1,8 @@
 import requests
 import time
 
-# Define the base URL of your API
 base_url = 'http://localhost:8000'
 
-# Define the endpoints
 endpoints_get = [
     '/',
     '/lightControlStatus/1',
@@ -28,8 +26,7 @@ endpoints_put = [
 def make_api_calls():
     for endpoint in endpoints_get:
         url = base_url + endpoint
-        response = requests.get(url)  # Adjust the method (get, put, etc.) if needed
-        # Process the response as needed
+        response = requests.get(url) 
     for endpoint in endpoints_put:
         url = base_url + endpoint
         if(endpoint == '/login/1'):
@@ -39,11 +36,9 @@ def make_api_calls():
         else:
             data = {"percentage":"40"}
 
-        response = requests.put(url, json=data)  # Ajusta los datos y la estructura según tus necesidades
-        # Procesa la respuesta según sea necesario
+        response = requests.put(url, json=data)  
 
 
-# Define the number of iterations
 num_iterations = 1000
 
 # Perform the API calls and measure the execution time
@@ -52,9 +47,7 @@ for _ in range(num_iterations):
     make_api_calls()
 end_time = time.time()
 
-# Calculate the total execution time
 total_time = end_time - start_time
 
-# Print the execution time per iteration
 print(f'Total time: {total_time} seconds')
 print(f'Time per iteration: {total_time/num_iterations} seconds')

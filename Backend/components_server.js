@@ -18,7 +18,16 @@ const components_model = require('./components_model');
 
 // CONTROLLER
 
+/*
+All the functions in this file do the same. Are the one that get the data in req.body and prepare them to be treat
+at component_model.js
+First the params are obtained from the http.request and once all the params are correct must call the function that is
+in component_model.js.
+Once the function in component_model.js is finished, it returns the final result.
+If everything went okey, the function send a result with status 201 and with the params asked. 
+If not, It would send an error to the console.log of the aplication.
 
+*/
 
 const getLightStatus = (req, res, next) => {
   let id = Number(req.params.id);
@@ -31,7 +40,7 @@ const getLightStatus = (req, res, next) => {
   })
   .catch(error => {next(Error(`DB error:\n${error}`));});
 };
-
+ 
 const loginController = (req, res, next) => {
   let user = req.query.user;
   let password =  req.query.password;
@@ -222,6 +231,23 @@ const modifyUser = (req, res, next) => {
   .catch(error => {next(Error(`An error ocurred:\n${error}`));});
 };
 
+const updateData = (req, res, next) => {
+  // Convert the modified object to JSON
+  
+  let idusuario = Number(req.params.id);
+  let data = JSON.stringify(req.body);
+  if(!idusuario || !data)
+    throw Error('User or data are required');
+  components_model.updateData(idusuario, JSON.parse(data))
+  .then(() => {
+    res.status(201).send({
+      success: 'true',
+      message: 'Done',
+    });
+  })
+  .catch(error => {next(Error(`An error ocurred:\n${error}`));});
+};
+
 
 const errorController = (err, req, res, next) => {
   if (req.originalUrl.includes('/api/'))
@@ -255,9 +281,9 @@ const headersController = (req, res, next) => {
 
 
 // ROUTER
+// All the API routes of the backend server
 app.use   ('*',                 logController);
 app.use   ('*',                 headersController);
-
 app.get ('/', loginController);
 app.get('/lightControl/:id',  getLightStatus);
 app.get('/lightControlStatus/:id', modifyLightStatus);
@@ -273,6 +299,7 @@ app.get('/electricityConsumMonth/:id', getElectricityConsumMonth);
 app.get('/electricityConsumWeek/:id', getElectricityConsumWeek);
 app.get('/ElectricityConsum/:id', getElectricityConsum);
 app.put('/login/:id', modifyUser);
+app.put('/updateData/:id', updateData);
 app.use(errorController);
 
 app.all('*', (req, res) =>
@@ -282,6 +309,7 @@ app.all('*', (req, res) =>
 
 // Server started at port 8000
 const PORT = 8000;
-app.listen(PORT,
-  () => {console.log(`Server running on port ${PORT}`);}
+const serverIP = '0.0.0.0';
+app.listen(PORT, serverIP,
+  () => {console.log(`Server running on port ${PORT} and ${serverIP}` );}
   );

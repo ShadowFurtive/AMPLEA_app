@@ -4,26 +4,13 @@
 const fs = require("fs");
 const { start } = require("repl");
 
-// Nom del fitxer de text on es guarden els elements en format JSON.
+// Name of the file with the data
 const DB_FILENAME = "datos.json";
-
-
-// Model de dades.
-//
-// Aquesta variable guarda tots els elements com un array d'objectes,
-// on els atributs de cada objecte són els seus camps.
-//
-// Al principi aquesta variable conté tres elements, però desprès es crida a load()
-// per carregar els elements guardats en el fitxer DB_FILENAME si existeix.
 let datos = [];
 
 
 /**
- *  Carrega els elements en format JSON del fitxer DB_FILENAME.
- *
- *  El primer cop que s'executa aquest mètode, el fitxer DB_FILENAME no
- *  existeix, i es produirà l'error ENOENT. En aquest cas es guardarà el
- *  contingut inicial.
+Load the data from the file datos.json in the variable datos.
  */
 const load = () => {
   fs.readFile(DB_FILENAME, (err, data) => {
@@ -44,7 +31,7 @@ const load = () => {
 
 
 /**
- *  Guarda els elements en format JSON en el fitxer DB_FILENAME.
+ Save the elements in the files datos.json
  */
 const save = () => {
   fs.writeFile(DB_FILENAME, JSON.stringify(datos),
@@ -53,7 +40,9 @@ const save = () => {
     });
 };
 
-
+/*
+Return if the light is on/off and if it's in automatic. These value are the one asked for the id. 
+*/
 exports.getLightStatus= (id) => {
   return new Promise((resolve, reject) => {
     const statusLight =  datos.light.find((i) => i.machineId === id);
@@ -68,7 +57,9 @@ exports.getLightStatus= (id) => {
 
 
 
-// user options
+/*
+Check if the credentials for the user and password exist.
+*/
 exports.checkUser = (user, password) => {
   return new Promise((resolve, reject) => {
     let valor = datos.products.find((i) => i.user === user && i.password === password);
@@ -77,7 +68,10 @@ exports.checkUser = (user, password) => {
   });
 }
 
-
+/*
+Modifies the values of the user. Can be the user or the password to be modified. 
+As always, we get the data that has the value of the idUser.
+*/
 exports.modifyUser = (idUsuario, user, password) => {
   return new Promise((resolve, reject) => {
     const dato = datos.products.find((i) => i.id === idUsuario);
@@ -93,7 +87,9 @@ exports.modifyUser = (idUsuario, user, password) => {
 };
 
 
-
+/*
+Turn off/on the lights. It changes the boolean value in the dataset.
+*/
 exports.modifyLightStatus = (iduser) => {
   return new Promise((resolve, reject) => {
     const statusLight =  datos.light.find((i) => i.machineId === iduser);
@@ -107,6 +103,9 @@ exports.modifyLightStatus = (iduser) => {
   });
 }; 
 
+/*
+Change the lightSchedule for the one asked.
+*/
 exports.modifyLightSchedule = (iduser, start_hour, end_hour) => {
   return new Promise((resolve, reject) => {
     const light =  datos.light.find((i) => i.machineId === iduser);
@@ -121,6 +120,9 @@ exports.modifyLightSchedule = (iduser, start_hour, end_hour) => {
   });
 }; 
 
+/*
+Modify the status of the light to be automatic or manual.
+*/
 exports.modifyLightAutomatic = (iduser) => {
   return new Promise((resolve, reject) => {
     const statusLight =  datos.light.find((i) => i.machineId === iduser);
@@ -134,6 +136,9 @@ exports.modifyLightAutomatic = (iduser) => {
   });
 }; 
 
+/*
+Modifies the power of the lights.
+*/
 exports.modifyLightPower = (iduser, power) => {
   return new Promise((resolve, reject) => {
     const statusLight =  datos.light.find((i) => i.machineId === iduser);
@@ -147,7 +152,11 @@ exports.modifyLightPower = (iduser, power) => {
   });
 }; 
 
-
+/*
+Here it does the average liter consumed of the last 7 days. 
+First it get the current date and the date of 7 days ago. 
+Gets all the data generated between these 2 days and do the average.
+*/
 exports.getWaterConsumAverage = (machineId) => {
   return new Promise((resolve, reject) => {
     const currentDate = new Date();
@@ -177,8 +186,13 @@ exports.getWaterConsumAverage = (machineId) => {
   });
 }; 
 
+/*
+Gets the consumption of the electricity or water (depending of the type) of the last 7 days.
+It an array the date and the consumption of that day so it can be used in the cart.
+*/
 exports.getConsumWeek = (machineId, type) => {
   return new Promise((resolve, reject) => {
+    // get consumption values of the last 7 days.
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
     
@@ -209,6 +223,7 @@ exports.getConsumWeek = (machineId, type) => {
       }
     });
     
+    // Generate array with the date and the consumption of each day
     const consumptionObjectArray = [];
     const date = new Date();
     date.setDate(date.getDate() - 6);
@@ -232,7 +247,9 @@ exports.getConsumWeek = (machineId, type) => {
   });
 }; 
 
-
+/*
+Gets the consumption of the water or electrcity (depending of the type) of today
+*/
 exports.getConsumToday = (machineId, type) => {
   return new Promise((resolve, reject) => {
     const currentDate = new Date();
@@ -253,7 +270,9 @@ exports.getConsumToday = (machineId, type) => {
   });
 }; 
 
-
+/*
+Get the electricity consumption of the last 7 days and do the total
+*/
 exports.getElectricityConsumWeek = (machineId) => {
   return new Promise((resolve, reject) => {
     const currentDate = new Date();
@@ -281,7 +300,9 @@ exports.getElectricityConsumWeek = (machineId) => {
   });
 }; 
 
-
+/*
+Return the total of the electrcity consumed during the last month.
+*/
 exports.getElectricityConsumMonth = (machineId) => {
   return new Promise((resolve, reject) => {
     const currentDate = new Date();
@@ -304,6 +325,58 @@ exports.getElectricityConsumMonth = (machineId) => {
   });
 }; 
 
+/*
+This function is the one that call the sensors to update the data.
+First, we check if the value to publish is float or integer, as for example the electrcity sensor can upload
+floats. In the other hand, the water flow sensors only upload integer.
+Once that is checked, the json is generated and there a is check to see if there is already an index with the current date.
+If the index exists, is overwritten by the new json generated. 
+If not, a new json is added to the dataset.
 
-// Carrega els elements guardats en el fitxer si existeix.
+*/
+exports.updateData = (machineId, data) => {
+  return new Promise((resolve, reject) => {
+    const currentDate = new Date().toISOString();
+    const consumValue = parseFloat(data.consum);
+    // Check if it's float or integer
+    let parsedValue;
+    if (!isNaN(consumValue)) {
+      if (Number.isInteger(consumValue)) {
+        parsedValue = parseInt(consumValue); 
+      } else {
+        parsedValue = consumValue; 
+      }
+    } 
+    //Generate JSON
+    const json = {
+      id: 1,
+      machineId: machineId,
+      type: parseInt(data.type),
+      consum: parsedValue,
+      date: currentDate
+    };
+    //Check if there is any existing index with the date and the type.
+    const existingIndex = datos.consumition.findIndex(item => (
+      item.machineId === machineId &&
+      item.type === parseInt(data.type) &&
+      item.date.slice(0, 10) === currentDate.slice(0, 10)
+    ));
+    //If exist, overwrite. If not, new JSON is added
+    if (existingIndex !== -1) {
+      datos.consumition[existingIndex] = json;
+    } else {
+      datos.consumition.push(json);
+    }
+
+    save()
+      .then(() => {
+        resolve();
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+// Load the data in the file.
 load();

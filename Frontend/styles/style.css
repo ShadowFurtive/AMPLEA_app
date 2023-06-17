@@ -1,3 +1,9 @@
+body{
+  width: 100%;
+  margin: 0; 
+  height: 100%; 
+  overflow: hidden
+}
 label {
 
   font-family: 'Heebo', sans-serif;
@@ -488,6 +494,7 @@ h1 {
 
 .slider{
   accent-color: #508BCA;
+  touch-action: none;
 }
 
 #imagen_inicio{

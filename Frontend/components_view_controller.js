@@ -3,16 +3,15 @@ $(function() {
 
   function ComponentsVC(ajaxUrl, name = "Components", id = "#components") {
     // VIEWs
+      // global variables that we are going to use in the different views and functions
       this.name = name;
       this.id = id;
       this.url = ajaxUrl;
       this.userId;
       this.userName;
-      this.search = "";
-      this.searchProduct = "";
       
 
-
+      // Main login form, two submits to introduce the credentails
       ComponentsVC.prototype.loginForm = function() {
         return `
        <label for="username">Username:</label><br>
@@ -24,7 +23,7 @@ $(function() {
       };
 
 
-
+      // main menu with 4 divs to select the different views
       ComponentsVC.prototype.menu = function (){
         return `
         <div s="choose_menu">
@@ -44,6 +43,8 @@ $(function() {
 
       }
 
+
+      // Menu light where we have 2 checkbox, 1 schedule for the hours and one slider
       ComponentsVC.prototype.menuLightHtml = function(){
         return`
         <div class="container">
@@ -84,16 +85,17 @@ $(function() {
         `
       }
 
+      // Options menu
       ComponentsVC.prototype.MenuSettingsHtml = function(){
         return`
         <div class="row_container">
           <button class="button-50 editProfile" type="button" id="editProfile">Edit</button>
-          <button class="button-50 profile" type="button" id="profile" title="profile">Profile</label>
           <button class="button-50 logout" type="button" id="logout" title="logout">Logout</label>
         </div>
         `
       }
 
+      // Water stats
       ComponentsVC.prototype.MenuWaterHtml = function(waterConsumitionToday, waterConsumAverage){
         return `
         <div class="column_container_water">
@@ -115,6 +117,8 @@ $(function() {
         <div id="chartContainer" style="margin-top: 50px; height: 370px; width: 100%;"></div>   
         `
       }
+
+      // Electricity stats
       ComponentsVC.prototype.MenuElectricityHtml = function(todayConsum, weekConsum, MonthConsum){
         return`
         <div class="column_container">
@@ -145,7 +149,7 @@ $(function() {
       }
 
 
-    
+      // Edit profile
       ComponentsVC.prototype.editProfile = function() {
         return `
        <h1>Edit user or password of the profile</h1>
@@ -157,34 +161,16 @@ $(function() {
         `
       };
 
-    
-      ComponentsVC.prototype.Profile = function() {
-        return `
-       <h1>Edit user or password of the profile</h1>
-       <label for="new_price">Introduce new user</label><br>
-       <input class="input_form" type="string" id="new_user" name="new_user"><br>
-       <label for="new_price">Introduce new password</label><br>
-       <input class="input_form" type="password" id="new_password" name="new_password"><br>
-       <input class="edit_user_submit enviar_info input_form" type="submit" value="Update profile">
-        `
-      };
-
       // CONTROLLERs
+      // Load view editProfile 
       ComponentsVC.prototype.editProfileController = function() {
           $(this.id).html(this.editProfile());
       };
 
-      ComponentsVC.prototype.profileController = function() {
-          $.ajax({
-            dataType: "json",
-            url: this.url+'/profile/'+this.userId,
-          })
-          .then(r => {
-            this.userId=r.message;
-            $(this.id).html(this.Profile());
-          })
-          .catch(error => {console.error(error.status, error.responseText);});
-      }
+      /*
+       This controller submit the new credentials for the user, in case that everything works send a notification in the app.
+       If something happens also sends a notification with an error message
+      */
       ComponentsVC.prototype.submitEditProfileController = function() {
         let user = $(this.id+' input[name=new_user]').val();
         let password = $(this.id+' input[name=new_password]').val();
@@ -219,14 +205,21 @@ $(function() {
         });
       };
 
+      //Load menuController
       ComponentsVC.prototype.goBackController = function() {
         this.menuController();
       };
 
+      //Load view of the LoginForm
       ComponentsVC.prototype.loginController = function() {
         $(this.id).html(this.loginForm());
       };
 
+      /* 
+      Load the view of the settings option.
+      Everytime that it moves further to the other views, the goBack button appears.
+      Also it change the title of the screen
+      */
       ComponentsVC.prototype.menuSettings = function() {
 
         $('#go_back_button').show();
@@ -234,6 +227,10 @@ $(function() {
         $(this.id).html(this.MenuSettingsHtml());
       };
 
+      /*
+      We generate do 3 calls for the API to get the data. 
+      Then generate the view with the data got and we call the canvas.js to produce the chart
+      */
       ComponentsVC.prototype.menuWater= function() {
         $('#go_back_button').show();
         document.getElementById('topic').textContent = 'Water Control';
@@ -257,6 +254,7 @@ $(function() {
           $(this.id).html(this.MenuWaterHtml(r1.message, r2.message));
           let weekConsumition = r3.message;
           var chart = new CanvasJS.Chart("chartContainer", {
+            // This params edit the chart so it make it look as we want
             title:{
               text: "Last week",
               fontColor: "#508BCA",
@@ -282,7 +280,6 @@ $(function() {
             },
             data: [
             {
-              // Change type to "bar", "area", "spline", "pie",etc.
               type: "column",
               indexLabelFontColor: "#508BCA",
               dataPoints: [
@@ -304,6 +301,10 @@ $(function() {
 
       }
 
+      /*
+      Same as before, there are calls for the API. Once the data is obtained
+      we generate the view with the data 
+      */
       ComponentsVC.prototype.menuElectricity= function() {
     
         $('#go_back_button').show();
@@ -332,7 +333,6 @@ $(function() {
         .then(([r1, r2, r3, r4]) => {
           weekConsumition = r4.message;
           $(this.id).html(this.MenuElectricityHtml(r1.message, r2.message, r3.message));
-          var dps = []; // dataPoints
           var chart = new CanvasJS.Chart("chartContainer", {
             data: [{
               type: "line",
@@ -348,6 +348,7 @@ $(function() {
                 { label: weekConsumition[6].date,  y: weekConsumition[6].consumption, indexLabel: "{y}", color: "#508BCA"   }
               ]
             }],
+            // Params to edit the look of the chart
             axisX: {
               lineColor: "#508BCA",
               labelFontColor: "#508BCA",
@@ -373,6 +374,13 @@ $(function() {
         });
       };
 
+
+      /*
+      First the API get calls are generated. Once the data is one, there are programmed
+      the listener waiting for being activate for do the API calls to change the status of the variables
+      in the backend. As before, for the different API calls once they are generated, if everything went good
+      there is a notification in the app 
+      */
       ComponentsVC.prototype.menuLight = function(){
 
         $('#go_back_button').show();
@@ -383,6 +391,7 @@ $(function() {
         const rangeInput = document.getElementById("myRangeMenuLight");
         const url = this.url;
         const userId = this.userId;
+        // Get data of the checkbox
         $.ajax({
           dataType: "json",
           url: url + '/lightControlValue/'+userId,
@@ -405,38 +414,19 @@ $(function() {
           else if(this.value<20) percentage+=5;
           console.log(percentage);
           this.style.backgroundSize = `${percentage}% 100%`;
+          // Update the power of the light
           $.ajax({
             dataType: "json",
             method: "PUT",
             url: url + '/lightControlPower/'+userId,
             data: {percentage}
           })
-          .then(() => {
-            Swal.fire({
-              position: 'top-end',
-              icon: 'success',
-              title: 'The data has been modified',
-              showConfirmButton: false,
-              timer: 1750,
-              toast: true
-            })
-          })
           .catch(error => {
             console.error(error.status, error.responseText);
-            Swal.fire({
-              position: 'center',
-              icon: 'error',
-              title: 'Error ocurred',
-              text: 'Something went wrong',
-              showConfirmButton: false,
-              timer: 3000,
-              toast: true
-            }) 
           })
         });
+        // Same for the both checkBox, if one of them are triggered they call the API. This case the API call is a GET
         checkboxAutomatic.addEventListener("change", function(event) {
-          // Check if the checkbox is checked or not
-          const isChecked = this.checked;
           $.ajax({
             dataType: "json",
             method: "GET",
@@ -466,8 +456,6 @@ $(function() {
           });
         });
         checkboxStatus.addEventListener("change", function(event) {
-          // Check if the checkbox is checked or not
-          const isChecked = this.checked;
           $.ajax({
             dataType: "json",
             method: "GET",
@@ -498,12 +486,15 @@ $(function() {
            
         });
       }
-
+      /*
+      Menu controller that generate the menu view. As it has the sliderbar, must do the function for when is triggered
+      do the api calls 
+      */
       ComponentsVC.prototype.menuController = function() {
         $(this.id).html(this.menu());
 
         $('#go_back_button').hide();
-        document.getElementById('topic').textContent = 'Hello, '+this.userId+'!';
+        document.getElementById('topic').textContent = 'Hello, '+this.userName+'!';
         $('#topic').show();
         
         const rangeInput = document.getElementById("myRange");
@@ -525,32 +516,13 @@ $(function() {
             url: url + '/lightControlPower/'+userId,
             data: {percentage}
           })
-          .then(() => {
-            Swal.fire({
-              position: 'top-end',
-              icon: 'success',
-              title: 'The data has been modified',
-              showConfirmButton: false,
-              timer: 1750,
-              toast: true
-            })
-          })
           .catch(error => {
             console.error(error.status, error.responseText);
-            Swal.fire({
-              position: 'center',
-              icon: 'error',
-              title: 'Error ocurred',
-              text: 'Something went wrong',
-              showConfirmButton: false,
-              timer: 3000,
-              toast: true
-            }) 
           })
         });
       };
 
-
+      // Login submit controller
       ComponentsVC.prototype.submitController = function() {
         let user = $(this.id+' input[name=username]').val();
         let password = $(this.id+' input[name=password]').val();
@@ -560,6 +532,7 @@ $(function() {
           data: {user: user, password: password}
         })
         .then(r => {
+          // Add main params and generate the menuView with menuController
           this.userId=r.message.id;
           this.userName=r.message.user;
           $('#title').hide();
@@ -587,7 +560,7 @@ $(function() {
         }) 
       };
 
-
+      // Controller for updating the schedule of the Lights. 
       ComponentsVC.prototype.SaveScheController = function() {
         let start_hour = $(this.id+' input[name=appt_start]').val();
         let end_hour = $(this.id+' input[name=appt_end]').val();
@@ -621,9 +594,10 @@ $(function() {
           })
         })  
       };
-
+      // Just delete all the fix params that must be used for a new user and prepare everything to have the login view
       ComponentsVC.prototype.logoutController = function() {
         this.userId=null;
+        this.userName=null;
         $('#title').show();
         $('#go_back_button').hide();
         $('#topic').hide();
@@ -638,6 +612,7 @@ $(function() {
         this.loginController();
       };
 
+      // TRIGGERS
       ComponentsVC.prototype.eventsController = function() {
         $(document).on('click', '.goback', () => this.goBackController());
         $(document).on('click', this.id+' .submit', () => this.submitController());
@@ -655,6 +630,7 @@ $(function() {
         $(document).on('click', this.id+' .save_schedule', () => this.SaveScheController());
         
       };
+      // Function controller to have a loading screen view
       ComponentsVC.prototype.loadController = function(){
         $('#cuerpo_principal').hide();
         $('#imagen_de_carga').show()
@@ -663,6 +639,7 @@ $(function() {
         $('#cuerpo_principal').show();
          }, 1000);
       }
+      // Main functions calls and params define
       this.loadController();
       $('#title').show();
       $('#go_back_button').hide();
