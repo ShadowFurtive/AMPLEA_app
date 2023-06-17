@@ -24,7 +24,9 @@ To deploy the project, only the backend server needs to be generated. To do this
 
 To run the node server, just run the following line in a terminal:
 ```sh
+
 node component_server.js
+
 ```
 The component_server.js can be found in the path /backend.
 
@@ -47,12 +49,15 @@ const  char* password = "aloha123";
 ```
 Also, there is another important point to check. In case that there is the need that the ESP-32 ends http.request to the localhost (as is the case in this project), the correct ip needs to be defined. In this case, the correct ip is the one obtained after performing the next command in the windows cmd console:
 ```sh
+
 ipconfig
+
 ```
 Once the IP is set, it must be defined in the URL to make the API calls.
 ```c
- 
+
 // IMPORTANT -> cmd ip config
 String serverName = "http://XXX.XXX.XX.XXX:8000/updateData/1";
+
 ```
 Once these is defined, in the serial monitor with the correct baud, it can been seen as it connect to Wi-Fi and start sending http.request (of course, the sensors must be connected to the correct pins).
