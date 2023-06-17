@@ -11,9 +11,9 @@ European project semester at Instituto Superior de engenharia de Porto.
 ![N|Solid](https://www.eps2023-wiki1.dee.isep.ipp.pt/lib/exe/fetch.php?cache=&w=800&h=412&tok=0723fa&media=logo_team_1.png)
 ## Features
 
-- App made by [Jquery], [Ajax] and [Node.js]
-- Use of [Arduino] to develope the functionalities of the sensors
-- Use of [GITHUB]
+- App made by [jQuery](https://jquery.com/) and [Node.js (nodejs.org)](https://nodejs.org/en)
+- Use of [Arduino](https://www.arduino.cc/) to develope the functionalities of the sensors
+- Use of [GITHUB](https://github.com/)
 - .md created with [StackEdit](https://stackedit.io/app#)
 
 ## Project
